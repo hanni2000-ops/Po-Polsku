@@ -18,7 +18,33 @@
     return { vocab: [], settings: { gender: 'f', diacriticsRequired: false } };
   }
   let state = load();
-  function save() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+  let storageOK = storageAvailable();
+  function storageAvailable() {
+    try {
+      const k = '__plStorageTest__';
+      localStorage.setItem(k, '1');
+      localStorage.removeItem(k);
+      return true;
+    } catch (e) { return false; }
+  }
+  function showStorageWarning() {
+    const w = $('#storage-warning');
+    if (w) {
+      w.classList.remove('hidden');
+      w.innerHTML = '⚠️ <strong>Speichern nicht möglich:</strong> Der Browser-Speicher (localStorage) ist blockiert ' +
+        '(z. B. Datei direkt per Doppelklick (<code>file://</code>) in manchen Browsern, privater Modus oder deaktivierte Cookies). ' +
+        'Vokabeln bleiben dann nur für die aktuelle Sitzung erhalten.<br>' +
+        'Lösung: App lokal servieren – <code>python3 -m http.server 8000 --bind 127.0.0.1</code> im App-Ordner, dann ' +
+        '<code>http://127.0.0.1:8000</code> im Browser öffnen (immer dieselbe Adresse/Port verwenden, sonst ist der Speicher getrennt).';
+    }
+  }
+  function save() {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+    } catch (e) {
+      if (storageOK) { storageOK = false; showStorageWarning(); }
+    }
+  }
   function uid() { return 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
   function esc(s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -613,6 +639,7 @@
     renderVocabList();
     renderSettings();
     refreshSetup();
+    if (!storageOK) showStorageWarning();
   }
   renderAll();
 })();
