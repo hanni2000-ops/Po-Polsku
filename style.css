@@ -112,3 +112,12 @@ table.conj td.asked { background: var(--accent-soft); font-weight: 700; }
 .match-col button.wrongflash { background: #fdecea; border-color: var(--bad); }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
 hr { border: none; border-top: 1px solid var(--line); margin: 1rem 0; }
+.storage-warning {
+  background: #fff8e1;
+  border: 1px solid #f0c040;
+  color: #7a5b00;
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
