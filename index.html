@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pl-Vokabeltrainer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>🇵🇱 Pl-Vokabeltrainer</h1>
+    <nav class="tabs">
+      <button class="tab active" data-tab="vokabeln">Vokabeln</button>
+      <button class="tab" data-tab="ueben">Üben</button>
+      <button class="tab" data-tab="statistik">Statistik</button>
+      <button class="tab" data-tab="einstellungen">Einstellungen</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ============ VOKABELN ============ -->
+    <section id="tab-vokabeln" class="tabpage active">
+      <div class="columns">
+        <div class="card">
+          <h2 id="vocab-form-title">Neue Vokabel</h2>
+          <form id="vocab-form">
+            <input type="hidden" id="f-id">
+            <label>Polnisch *
+              <input type="text" id="f-pl" required placeholder="np. czytać / myć się">
+            </label>
+            <label>Deutsch *
+              <input type="text" id="f-de" required placeholder="np. lesen / sich waschen">
+            </label>
+            <label>Wortart
+              <select id="f-pos">
+                <option>Substantiv</option>
+                <option selected>Verb</option>
+                <option>Adjektiv</option>
+                <option>Adverb</option>
+                <option>Redewendung</option>
+                <option>Sonstiges</option>
+              </select>
+            </label>
+            <label>Woche (z. B. KW 45/2025)
+              <input type="text" id="f-week" list="week-list" required>
+              <datalist id="week-list"></datalist>
+            </label>
+            <label>Polnische Erklärung (für Zuordnungsübung)
+              <input type="text" id="f-plexpl" placeholder="np. oglądać tekst i rozumieć słowa">
+            </label>
+            <label>Beispielsatz (polnisch, für Lückentext)
+              <input type="text" id="f-example" placeholder="np. Czytam książkę po polsku.">
+            </label>
+            <details id="custom-forms">
+              <summary>Eigene Verbformen (optional, je 6 Formen, kommagetrennt)</summary>
+              <label>Präsens
+                <input type="text" id="f-custom-present" placeholder="czytam, czytasz, czyta, …">
+              </label>
+              <label>Präteritum (deine Form, z. B. weiblich)
+                <input type="text" id="f-custom-past" placeholder="czytałam, czytałaś, …">
+              </label>
+              <label>Futur
+                <input type="text" id="f-custom-future" placeholder="będę czytać, …">
+              </label>
+            </details>
+            <div class="form-actions">
+              <button type="submit" class="primary">Speichern</button>
+              <button type="button" id="vocab-cancel" class="hidden">Abbrechen</button>
+            </div>
+          </form>
+        </div>
+        <div class="card grow">
+          <div class="list-header">
+            <h2>Meine Vokabeln</h2>
+            <div class="filters">
+              <select id="filter-week">
+                <option value="">Alle Wochen</option>
+              </select>
+              <input type="search" id="filter-search" placeholder="Suche…">
+            </div>
+          </div>
+          <table id="vocab-table">
+            <thead>
+              <tr><th>Polnisch</th><th>Deutsch</th><th>Wortart</th><th>Woche</th><th>Übungsstand</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <p id="vocab-empty" class="muted">Noch keine Vokabeln. Lege oben welche an oder lade Beispieldaten in den Einstellungen.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ÜBEN ============ -->
+    <section id="tab-ueben" class="tabpage">
+      <div class="card" id="setup-card">
+        <h2>Übung starten</h2>
+        <fieldset>
+          <legend>Modus</legend>
+          <label><input type="radio" name="modus" value="all" checked> Alle Vokabeln, sortiert nach Übungshistorie (nie Geübtes zuerst, dann schwächste Quote)</label>
+          <label><input type="radio" name="modus" value="week"> Nach Woche gefiltert:
+            <select id="setup-week"></select>
+          </label>
+        </fieldset>
+        <fieldset>
+          <legend>Übungstyp</legend>
+          <label><input type="radio" name="typ" value="mieszane" checked> Gemischt</label>
+          <label><input type="radio" name="typ" value="lucka"> Lückentext (Wort in Satz einsetzen)</label>
+          <label><input type="radio" name="typ" value="dopasowanie"> Zuordnen (polnisches Wort ↔ polnische Erklärung)</label>
+          <label><input type="radio" name="typ" value="zdanie"> Eigenen Satz bilden (mit Korrektur)</label>
+          <label><input type="radio" name="typ" value="koniugacja"> Konjugieren – Präsens, Präteritum, Futur (nur Verben)</label>
+        </fieldset>
+        <label>Anzahl Vokabeln pro Durchgang
+          <input type="number" id="setup-count" value="10" min="3" max="50">
+        </label>
+        <p class="muted" id="setup-hint"></p>
+        <button id="start-uebung" class="primary">Start ▶</button>
+      </div>
+
+      <div class="card hidden" id="session-card">
+        <div class="session-head">
+          <span id="session-progress"></span>
+          <span id="session-score"></span>
+          <button id="session-abort" class="small">Beenden</button>
+        </div>
+        <h2 id="session-title"></h2>
+        <div id="session-body"></div>
+      </div>
+
+      <div class="card hidden" id="summary-card">
+        <h2>Wynik / Ergebnis</h2>
+        <div id="summary-body"></div>
+        <button id="summary-again" class="primary">Nochmal üben</button>
+        <button id="summary-back">Zurück zur Übersicht</button>
+      </div>
+    </section>
+
+    <!-- ============ STATISTIK ============ -->
+    <section id="tab-statistik" class="tabpage">
+      <div class="card">
+        <h2>Statistik</h2>
+        <div id="stats-body"></div>
+      </div>
+    </section>
+
+    <!-- ============ EINSTELLUNGEN ============ -->
+    <section id="tab-einstellungen" class="tabpage">
+      <div class="card">
+        <h2>Einstellungen</h2>
+        <fieldset>
+          <legend>Mein Geschlecht (wichtig für Präteritum-Endungen: -łam / -łem)</legend>
+          <label><input type="radio" name="gender" value="f" checked> weiblich (żeński) → z. B. <em>zrobiłam</em></label>
+          <label><input type="radio" name="gender" value="m"> männlich (męski) → z. B. <em>zrobiłem</em></label>
+        </fieldset>
+        <label><input type="checkbox" id="set-diacritics"> Polnische Buchstaben (ą, ć, ę …) in Antworten verlangen (sonst werden sie ignoriert)</label>
+        <hr>
+        <h3>Daten</h3>
+        <button id="btn-export">Exportieren (JSON)</button>
+        <button id="btn-import">Importieren (JSON)</button>
+        <input type="file" id="import-file" accept="application/json" class="hidden">
+        <button id="btn-seed">Beispiel-Vokabeln laden (Niveau A2, Alltag)</button>
+        <button id="btn-wipe" class="danger">Alle Daten löschen</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="core.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
